@@ -1,0 +1,10 @@
+{
+    "herokuMySQL": {
+        "connectionLimit": 100,
+        "host": "us-cdbr-east-05.cleardb.net",
+        "port": 3306,
+        "user ": "b1bd0e2253fb4f",
+        "password": "a2f6d7b2",
+        "database ": "heroku_096d62b2c9d603b"
+    }
+}
