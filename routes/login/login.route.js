@@ -6,7 +6,6 @@ const express = require('express');
 const router = express.Router();
 
 router.post('/', async(req, res) => {
-
     const result = await useraccountModel.login(req.body);
 
     if (result === null) {
@@ -22,7 +21,7 @@ router.post('/', async(req, res) => {
     return res.json({
         authenticated: true,
         accessToken: accessToken,
-        userinfo: result,
+        userInfo: result,
         message: 'dang nhap thanh cong'
     })
 })
