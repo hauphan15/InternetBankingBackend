@@ -93,7 +93,6 @@ router.post('/receive-history', async(req, res) => {
 //giao dịch gửi tiền
 router.post('/send-history', async(req, res) => {
     const sendHistory = await transactionModel.getSendTransaction(req.body.ID);
-
     return res.send(sendHistory);
 })
 
