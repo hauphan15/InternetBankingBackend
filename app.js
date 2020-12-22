@@ -21,5 +21,5 @@ app.use('/employee', require('./routes/employee/employee.route'))
 app.use('/customer', require('./routes/customer/customer.route'));
 
 app.listen(3001, function() {
-    console.log('app is running at localhost:3000');
+    console.log('app is running at localhost:3001');
 });

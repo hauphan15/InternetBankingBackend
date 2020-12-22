@@ -4,6 +4,9 @@ module.exports = {
     add: entity => {
         return database.add('checkingaccount', entity)
     },
+    getByID: ID => {
+        return database.load(`select * from checkingaccount where ID = '${ID}' `);
+    },
     getByAccountNumber: number => {
         return database.load(`select * from checkingaccount where AccountNumber = '${number}' `);
     },

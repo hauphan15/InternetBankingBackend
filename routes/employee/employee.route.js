@@ -62,7 +62,7 @@ router.post('/create-customer-account', async(req, res) => {
     const checkingAccountObject = {
         ID: useraccountAddResult.insertId,
         AccountNumber: checkingAccountNumber,
-        DateCreate: req.body.datecreate
+        DateCreate: moment().format('YYYY-MM-DD')
     }
 
     //thêm vào bảng checkingaccount

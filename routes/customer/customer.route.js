@@ -99,12 +99,8 @@ router.post('/send-history', async(req, res) => {
 
 //lấy danh sách người nhận
 router.post('/receiver-list', async(req, res) => {
-    const list = await receiverlistModel.getByUserID(req.body.UserID);
-
-    return res.json({
-        success: true,
-        list
-    })
+    const receiverList = await receiverlistModel.getByUserID(req.body.UserID);
+    return res.send(receiverList);
 })
 
 //thêm người nhận
@@ -125,6 +121,7 @@ router.post('/add-receiver', async(req, res) => {
     const receiverObject = {
         UserID: req.body.UserID,
         ReceiverID: receiverAccount[0].ID,
+        AccountNumber: req.body.ReceiverNumber,
         NickName: req.body.NickName
     }
 
