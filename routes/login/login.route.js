@@ -1,6 +1,5 @@
 const useraccountModel = require('../../models/useraccount.model');
 const jwt = require("jsonwebtoken");
-const randToken = require("rand-token");
 const express = require('express');
 
 const router = express.Router();

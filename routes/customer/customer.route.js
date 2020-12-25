@@ -3,9 +3,10 @@ const checkingaccountModel = require('../../models/checkingaccount.model');
 const nodemailer = require('nodemailer');
 const userprofileModel = require('../../models/userprofile.model');
 const otpcodeModel = require('../../models/otpcode.model');
-const moment = require('moment');
+const notificationModel = require('../../models/notification.model');
 const transactionModel = require('../../models/transactionhistory.model');
 const receiverlistModel = require('../../models/receiverlist.model');
+const moment = require('moment');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post('/send-money', async(req, res) => {
 
     const receiverAccount = await checkingaccountModel.getByAccountNumber(req.body.ReceiverNumber);
+    console.log(receiverAccount);
     const senderAccount = await checkingaccountModel.getByAccountNumber(req.body.SenderNumber);
 
     const senderOTP = await otpcodeModel.getByID(senderAccount[0].ID);
@@ -69,9 +71,20 @@ router.post('/send-money', async(req, res) => {
         ReceiverNumber: receiverAccount[0].AccountNumber,
         Money: req.body.Money,
         Content: req.body.Content,
-        DateSend: moment().format('DD-MM-YYYY hh:mm:ss')
+        DateSend: moment().format('YYYY-MM-DD hh:mm:ss')
     }
     await transactionModel.add(transactionInfo);
+
+    //thêm vào bảng nottify
+    const notificationInfo = {
+        UserID: receiverAccount[0].ID,
+        SenderID: senderAccount[0].ID,
+        Money: req.body.Money,
+        Content: req.body.Content,
+        Time: moment().format('YYYY-MM-DD hh:mm:ss'),
+        Seen: 1
+    }
+    await notificationModel.add(notificationInfo);
 
     return res.json({
         success: true,
@@ -81,6 +94,20 @@ router.post('/send-money', async(req, res) => {
 
 })
 
+//lấy tất cả thông báo
+router.post('/notification', async(req, res) => {
+    const notification = await notificationModel.getAllUnSeenNotification(req.body.UserID);
+    return res.send(notification);
+})
+
+//update đã xem tất cả thông báo
+router.post('/seen-all-notification', async(req, res) => {
+    await notificationModel.updateSeenStatus(req.body.UserID);
+
+    return res.send({
+        success: true
+    });
+})
 
 //xem lịch sử giao dịch
 //giao dịch nhận tiền
@@ -135,7 +162,7 @@ router.post('/add-receiver', async(req, res) => {
 })
 
 //đổi nickname người nhận
-router.post('/update-nickname', async(req, res) => {
+router.post('/edit-receiver', async(req, res) => {
     // req.body = {
     //     ID,
     //     NewNickName
