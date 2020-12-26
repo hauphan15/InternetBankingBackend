@@ -11,34 +11,32 @@ const moment = require('moment');
 const router = express.Router();
 
 
-router.post('/send-money', async(req, res) => {
+router.post('/transfer-money', async(req, res) => {
 
     const receiverAccount = await checkingaccountModel.getByAccountNumber(req.body.ReceiverNumber);
-    console.log(receiverAccount);
     const senderAccount = await checkingaccountModel.getByAccountNumber(req.body.SenderNumber);
 
     const senderOTP = await otpcodeModel.getByID(senderAccount[0].ID);
     const headerOTP = req.headers['x-otp-code'];
-    console.log(`${senderOTP[0].Code} ---- ${headerOTP}`);
 
     if (senderOTP[0].Code !== headerOTP) {
         return res.json({
             success: false,
-            message: 'Mã OTP không đúng'
+            message: 'Invalid OTP code'
         })
     }
 
     if (+req.body.Money <= 0) {
         return res.json({
             success: false,
-            message: 'Số tiền gửi không hợp lệ'
+            message: 'Invalid amount'
         })
     }
 
     if (receiverAccount.length === 0) {
         return res.json({
             success: false,
-            message: 'Số tài khoản người nhận không hợp lệ'
+            message: 'Account number of receiver does not not exist in the  system'
         })
     }
 
@@ -46,7 +44,7 @@ router.post('/send-money', async(req, res) => {
     if (+senderAccount[0].Money < (+req.body.Money + 1000)) {
         return res.json({
             success: false,
-            message: 'Số dư tài khoản không đủ thực hiện giao dịch'
+            message: 'Your balance is not enough for this transaction'
         })
     }
 
@@ -89,7 +87,7 @@ router.post('/send-money', async(req, res) => {
     return res.json({
         success: true,
         transactionInfo,
-        message: 'giao dịch thành công'
+        message: 'Successfull transaction'
     })
 
 })
@@ -102,10 +100,11 @@ router.post('/notification', async(req, res) => {
 
 //update đã xem tất cả thông báo
 router.post('/seen-all-notification', async(req, res) => {
-    await notificationModel.updateSeenStatus(req.body.UserID);
+    const result = await notificationModel.updateSeenStatus(req.body.UserID);
 
     return res.send({
-        success: true
+        success: true,
+        result
     });
 })
 
@@ -141,7 +140,7 @@ router.post('/add-receiver', async(req, res) => {
     if (receiverAccount.length === 0) {
         return res.json({
             success: false,
-            message: 'Số tài khoản không hợp lệ'
+            message: 'Account number of receiver does not not exist in the  system'
         })
     }
 
@@ -157,7 +156,7 @@ router.post('/add-receiver', async(req, res) => {
     return res.json({
         success: true,
         addReceiver,
-        message: 'Thêm người nhận thành công'
+        message: 'Add receiver successfully'
     })
 })
 
@@ -170,7 +169,7 @@ router.post('/edit-receiver', async(req, res) => {
     await receiverlistModel.updateNickName(req.body.ID, req.body.NickName);
     return res.json({
         success: true,
-        message: 'Đổi nickname thành công'
+        message: 'Change nickname successfully'
     })
 })
 
@@ -194,10 +193,9 @@ router.post('/send-otp', async(req, res) => {
         from: 'hhbank.service@gmail.com',
         to: senderInfo[0].Email,
         subject: 'Xác thực mã OTP - HHBank',
-        text: `Xin chào khách hàng ${senderInfo[0].FullName}
-         Đây là mã OTP để xác thực giao dịch: ${OTP}
-         Vui lòng xác thực trong vòng 2 giờ trước khi mã hết hạn
-         Thân chào!`
+        text: `Dear customer: ${senderInfo[0].FullName}
+         This is OTP Code: ${OTP} from InternetBanking Service.
+         Please verify within 30 minutes prior to expiration `
     };
 
     //gửi mã otp đến khách hàng
