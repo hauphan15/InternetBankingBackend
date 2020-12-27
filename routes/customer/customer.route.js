@@ -113,12 +113,21 @@ router.post('/seen-all-notification', async(req, res) => {
 router.post('/receive-history', async(req, res) => {
     const receiveHistory = await transactionModel.getReceiveTransaction(req.body.ID);
 
+    for (let index = 0; index < receiveHistory.length; index++) {
+        receiveHistory[index].DateSend = moment(receiveHistory[index].DateSend).format('DD-MM-YYYY hh:mm:ss');
+    }
+
     return res.send(receiveHistory);
 })
 
 //giao dịch gửi tiền
 router.post('/send-history', async(req, res) => {
     const sendHistory = await transactionModel.getSendTransaction(req.body.ID);
+
+    for (let index = 0; index < sendHistory.length; index++) {
+        sendHistory[index].DateSend = moment(sendHistory[index].DateSend).format('DD-MM-YYYY hh:mm:ss');
+    }
+
     return res.send(sendHistory);
 })
 
