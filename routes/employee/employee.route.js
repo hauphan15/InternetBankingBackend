@@ -158,16 +158,49 @@ router.post('/get-customer', async (req, res) => {
         });
     }
 
-    var result = await userprofileModel.getByID(entity.ID);
-    if(result.length <= 0) {
+    var result1 = await userprofileModel.getByID(entity.ID);
+    if(result1.length <= 0) {
         return res.json({
             success: false,
             message: "Cant find anyone"
         });
     }
+
+    var result2 = await checkingaccountModel.getByID(entity.ID); 
+    if(result1.length <= 0) {
+        return res.json({
+            success: false,
+            message: "Cant find anyone"
+        });
+    }
+    var result3 = await savingaccountModel.getByUserID(entity.ID); 
+    var ts = await transactionHistoryModel.getSendTransaction(entity.ID);
+    var result4 = [];
+    for (var item of ts) {
+        var t = {};
+        if(item.ReceiverID != 1) {
+            var peo = await userprofileModel.getByID(item.ReceiverID);
+            t = {...item, ReceiverName: peo[0].FullName};
+        } else {
+            t = {...item, ReceiverName: 'System'}
+        }
+        result4.push(t);
+    }
+    var tr = await transactionHistoryModel.getReceiveTransaction(entity.ID);
+    var result5 = [];
+    for (var item of tr) {
+        var t = {};
+        if(item.SenderID != 1) {
+            var peo = await userprofileModel.getByID(item.SenderID);
+            t = {...item, SenderName: peo[0].FullName};
+        } else {
+            t = {...item, SenderName: 'System'}
+        }
+        result5.push(t);
+    }
     res.json({
         success: true,
-        customer: result[0],
+        customer: [result1[0], result2[0], result3[0], result4, result5],
         message: "Success"
     });
 });
@@ -243,7 +276,7 @@ router.post('/tranmoney-to-another-customer', async (req, res) => {
         ReceiverNumber : receiver[0].AccountNumber,
         Money : entity.money,
         Content : entity.content,
-        DateSend : new Date().getDate()
+        DateSend : moment().format('YYYY-MM-DD hh:mm:ss')
     }
     console.log(transactionhistory);
     await transactionHistoryModel.add(transactionhistory);

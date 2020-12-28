@@ -8,6 +8,7 @@ module.exports = {
         return database.load(`select * from userprofile where ID = ${id}`);
     },
     getList: entity => {
-        return database.load(`select * from userprofile where FullName like "%${entity.name}%" and Phone like "%${entity.phone}%" and IdentificationCardID like "%${entity.cmnd}%"`);
+        return database.load(`select * from userprofile where FullName like "%${entity.name}%"
+         and Phone like "%${entity.phone}%" and IdentificationCardID like "%${entity.cmnd}%"`);
     }
 };
