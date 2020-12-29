@@ -7,6 +7,7 @@ const notificationModel = require('../../models/notification.model');
 const transactionModel = require('../../models/transactionhistory.model');
 const receiverlistModel = require('../../models/receiverlist.model');
 const moment = require('moment');
+const useraccountModel = require('../../models/useraccount.model');
 
 const router = express.Router();
 
@@ -155,6 +156,17 @@ router.post('/send-history', async(req, res) => {
     return res.send(sendHistory);
 })
 
+//5 giao dịch nhận hoặc gửi gần nhất
+router.post('/last-five-history', async(req, res) => {
+    const lastFiveHistory = await transactionModel.lastFiveTransaction(req.body.UserID);
+
+    for (let index = 0; index < lastFiveHistory.length; index++) {
+        lastFiveHistory[index].DateSend = moment(lastFiveHistory[index].DateSend).format('DD-MM-YYYY hh:mm:ss');
+    }
+
+    return res.send(lastFiveHistory)
+})
+
 
 //lấy danh sách người nhận
 router.post('/receiver-list', async(req, res) => {
@@ -203,6 +215,26 @@ router.post('/edit-receiver', async(req, res) => {
     return res.json({
         success: true,
         message: 'Change nickname successfully'
+    })
+})
+
+//đổi password
+router.post('/change-password', async(req, res) => {
+
+    const userOTP = await otpcodeModel.getByID(req.body.ID);
+
+    if (userOTP !== req.headers['x-otp-code']) {
+        return res.json({
+            success: false,
+            message: 'Invalid OTP Code'
+        })
+    }
+
+    await useraccountModel.changePassword(req.body.ID, req.body.newPassword);
+
+    return res.json({
+        success: true,
+        message: 'Change password successfully'
     })
 })
 

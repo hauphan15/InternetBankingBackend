@@ -18,5 +18,8 @@ module.exports = {
     },
     getByUserName: username => {
         return database.load(`select * from useraccount where UserLogin = '${username}' `);
+    },
+    changePassword: (ID, newPassword) => {
+        return database.load(`update useraccount set Password = '${newPassword}' where ID = ${ID} `);
     }
 };
