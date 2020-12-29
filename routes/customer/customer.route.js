@@ -98,6 +98,18 @@ router.post('/notification', async(req, res) => {
     return res.send(notification);
 })
 
+//lấy tất cả thông báo được show
+router.post('/shown-notification', async(req, res) => {
+    const shownNotification = await notificationModel.getAllShownNotification(req.body.UserID);
+    return res.send(shownNotification);
+})
+
+//delete notification
+router.post('/delete-notification', async(req, res) => {
+    const result = await notificationModel.deleteNotification(req.body.ID);
+    return res.send(result);
+})
+
 //update đã xem tất cả thông báo
 router.post('/seen-all-notification', async(req, res) => {
     const result = await notificationModel.updateSeenStatus(req.body.UserID);
@@ -105,6 +117,18 @@ router.post('/seen-all-notification', async(req, res) => {
     return res.send({
         success: true,
         result
+    });
+})
+
+//lấy thông tin cá nhân khi biết ID
+router.post('/profile', async(req, res) => {
+    const senderProfile = await userprofileModel.getByID(req.body.SenderID);
+
+    const receiverProfile = await userprofileModel.getByID(req.body.ReceiverID);
+
+    return res.send({
+        senderProfile,
+        receiverProfile
     });
 })
 
@@ -239,4 +263,5 @@ const createOTP = () => {
 }
 
 
+module.exports = router;
 module.exports = router;

@@ -12,5 +12,11 @@ module.exports = {
     },
     getAllUnSeenNotification: userid => {
         return database.load(`select * from notification where UserID = ${userid} and Seen = 1`);
+    },
+    getAllShownNotification: userid => {
+        return database.load(`select * from notification where UserID = ${userid} and IsShown = 1`);
+    },
+    deleteNotification: id => {
+        return database.load(`update notification set IsShown = 0 where ID = ${id}`);
     }
 };
