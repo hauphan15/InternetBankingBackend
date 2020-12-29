@@ -1,5 +1,6 @@
 const express = require('express');
 const checkingaccountModel = require('../../models/checkingaccount.model');
+const savingaccountModel = require('../../models/savingaccount.model');
 const nodemailer = require('nodemailer');
 const userprofileModel = require('../../models/userprofile.model');
 const otpcodeModel = require('../../models/otpcode.model');
@@ -91,6 +92,28 @@ router.post('/transfer-money', async(req, res) => {
         message: 'Successfull transaction'
     })
 
+})
+
+//lấy tk thanh toán và tiết kiệm
+router.post('/accounts', async(req, res) => {
+    const checkingAccountInfo = await checkingaccountModel.getByID(req.body.UserID);
+    checkingAccountInfo[0].DateCreate = moment(checkingAccountInfo[0].DateCreate).format('DD-MM-YYYY');
+    checkingAccountInfo[0].Money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(checkingAccountInfo[0].Money); //format currency
+
+    let savingAccountInfo = await savingaccountModel.getByUserID(req.body.UserID);
+    if (savingAccountInfo.length === 0) {
+        savingAccountInfo = [{ AccountNumber: '' }]
+    } else {
+        for (let index = 0; index < savingAccountInfo.length; index++) {
+            savingAccountInfo[index].DateCreate = moment(savingAccountInfo[index].DateCreate).format('DD-MM-YYYY');
+            savingAccountInfo[0].Money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(savingAccountInfo[0].Money);
+        }
+    }
+
+    return res.json({
+        checkingAccountInfo: checkingAccountInfo[0],
+        savingAccountInfo
+    })
 })
 
 //lấy tất cả thông báo
