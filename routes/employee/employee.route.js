@@ -40,7 +40,7 @@ router.post('/create-customer-account', async(req, res) => {
         FullName: req.body.fullname,
         BirthDay: req.body.birthday,
         Gender: req.body.gender,
-        Address: req.body.gender,
+        Address: req.body.address,
         Phone: req.body.phone,
         Email: req.body.email,
         IdentificationCardID: req.body.identificationcardid
