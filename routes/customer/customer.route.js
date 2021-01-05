@@ -9,6 +9,7 @@ const transactionModel = require('../../models/transactionhistory.model');
 const receiverlistModel = require('../../models/receiverlist.model');
 const moment = require('moment');
 const useraccountModel = require('../../models/useraccount.model');
+const { lastFiveTransaction } = require('../../models/transactionhistory.model');
 
 const router = express.Router();
 
@@ -97,12 +98,20 @@ router.post('/transfer-money', async(req, res) => {
 //lấy tk thanh toán và tiết kiệm
 router.post('/accounts', async(req, res) => {
     const checkingAccountInfo = await checkingaccountModel.getByID(req.body.UserID);
+
+    if (checkingAccountInfo.length === 0) {
+        return res.send({
+            checkingAccountInfo: [],
+            savingAccountInfo: []
+        })
+    }
+
     checkingAccountInfo[0].DateCreate = moment(checkingAccountInfo[0].DateCreate).format('DD-MM-YYYY');
     checkingAccountInfo[0].Money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(checkingAccountInfo[0].Money); //format currency
 
     let savingAccountInfo = await savingaccountModel.getByUserID(req.body.UserID);
     if (savingAccountInfo.length === 0) {
-        savingAccountInfo = [{ AccountNumber: '' }]
+        savingAccountInfo = []
     } else {
         for (let index = 0; index < savingAccountInfo.length; index++) {
             savingAccountInfo[index].DateCreate = moment(savingAccountInfo[index].DateCreate).format('DD-MM-YYYY');
@@ -110,7 +119,7 @@ router.post('/accounts', async(req, res) => {
         }
     }
 
-    return res.json({
+    return res.send({
         checkingAccountInfo: checkingAccountInfo[0],
         savingAccountInfo
     })
@@ -144,7 +153,17 @@ router.post('/seen-all-notification', async(req, res) => {
     });
 })
 
-//lấy thông tin cá nhân khi biết ID
+//get user profile
+router.post('/user-profile', async(req, res) => {
+    const userprofile = await userprofileModel.getByID(req.body.ID);
+
+    userprofile[0].Birthday = moment(userprofile[0].Birthday).format('DD-MM-YYYY');
+
+    return res.send(userprofile[0]);
+})
+
+
+//get sender and receiver profile
 router.post('/profile', async(req, res) => {
     const senderProfile = await userprofileModel.getByID(req.body.SenderID);
 
@@ -182,6 +201,12 @@ router.post('/send-history', async(req, res) => {
 //5 giao dịch nhận hoặc gửi gần nhất
 router.post('/last-five-history', async(req, res) => {
     const lastFiveHistory = await transactionModel.lastFiveTransaction(req.body.UserID);
+
+    if (lastFiveHistory === null) {
+        return res.send({
+            lastFiveHistory: []
+        })
+    }
 
     for (let index = 0; index < lastFiveHistory.length; index++) {
         lastFiveHistory[index].DateSend = moment(lastFiveHistory[index].DateSend).format('DD-MM-YYYY hh:mm:ss');
@@ -241,12 +266,22 @@ router.post('/edit-receiver', async(req, res) => {
     })
 })
 
-//đổi password
+//Change password
 router.post('/change-password', async(req, res) => {
 
     const userOTP = await otpcodeModel.getByID(req.body.ID);
+    const userAccount = await useraccountModel.getByID(req.body.ID);
 
-    if (userOTP !== req.headers['x-otp-code']) {
+    console.log(`${userOTP}----${userAccount}`);
+
+    if (userAccount[0].Password !== req.body.oldPassword) {
+        return res.send({
+            success: false,
+            message: 'Incorrect old password'
+        })
+    }
+
+    if (userOTP[0].Code !== req.headers['x-otp-code']) {
         return res.json({
             success: false,
             message: 'Invalid OTP Code'
@@ -258,6 +293,37 @@ router.post('/change-password', async(req, res) => {
     return res.json({
         success: true,
         message: 'Change password successfully'
+    })
+})
+
+
+//reset password - forgotpassword
+router.post('/reset-password', async(req, res) => {
+    const result = useraccountModel.changePassword(req.body.ID, req.body.newPassword);
+
+    return res.send({
+        success: true,
+        message: 'Reset password successfully',
+        result
+    })
+})
+
+//verify OTP - forgot password
+router.post('/verify-otp', (req, res) => {
+    const OTP = req.headers['x-opt-code'];
+    const userAccount = useraccountModel.getByUserName(req.body.username);
+    const userOTP = otpcodeModel.getByID(userAccount[0].Code);
+
+    if (OTP !== userOTP) {
+        return res.send({
+            success: false,
+            message: 'Invalid OTP Code'
+        })
+    }
+
+    return res.send({
+        success: true,
+        message: 'Valid OTP Code'
     })
 })
 
@@ -317,6 +383,4 @@ const createOTP = () => {
     return OTPcode;
 }
 
-
-module.exports = router;
 module.exports = router;

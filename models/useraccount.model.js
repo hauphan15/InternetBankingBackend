@@ -16,6 +16,9 @@ module.exports = {
     add: entity => {
         return database.add('useraccount', entity)
     },
+    getByID: id => {
+        return database.load(`select * from useraccount where ID = ${id}`);
+    },
     getByUserName: username => {
         return database.load(`select * from useraccount where UserLogin = '${username}' `);
     },
