@@ -1,7 +1,9 @@
 const express = require('express');
 const userAccountModel = require('../../models/useraccount.model');
-const userprofileModel = require('../../models/userprofile.model');
 const userProfileModel = require('../../models/userprofile.model');
+const transactionHistoryModel = require('../../models/transactionhistory.model');
+const moment = require('moment');
+
 const router = express.Router();
 
 router.post('/employee-list', async(req, res) => {
@@ -67,7 +69,7 @@ router.post('/add-employee', async(req, res) => {
 router.post('/remove-employee', async(req, res) => {
 
     await userAccountModel.delete(req.body.ID);
-    await userprofileModel.delete(req.body.ID);
+    await userProfileModel.delete(req.body.ID);
 
     res.send({
         success: true,
@@ -75,4 +77,22 @@ router.post('/remove-employee', async(req, res) => {
     })
 })
 
+
+router.post('/all-history', async(req, res) => {
+    const historyList = await transactionHistoryModel.getAll();
+
+    for (let index = 0; index < historyList.length; index++) {
+        historyList[index].DateSend = moment(historyList[index].DateSend).format('DD-MM-YYYY hh:mm:ss');
+    }
+    res.send(historyList);
+})
+
+router.post('/current-month-history', async(req, res) => {
+    const historyList = await transactionHistoryModel.currentMonthTransaction();
+
+    for (let index = 0; index < historyList.length; index++) {
+        historyList[index].DateSend = moment(historyList[index].DateSend).format('DD-MM-YYYY hh:mm:ss');
+    }
+    res.send(historyList);
+})
 module.exports = router;

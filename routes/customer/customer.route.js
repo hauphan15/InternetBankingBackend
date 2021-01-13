@@ -9,7 +9,6 @@ const transactionModel = require('../../models/transactionhistory.model');
 const receiverlistModel = require('../../models/receiverlist.model');
 const moment = require('moment');
 const useraccountModel = require('../../models/useraccount.model');
-const { lastFiveTransaction } = require('../../models/transactionhistory.model');
 
 const router = express.Router();
 
