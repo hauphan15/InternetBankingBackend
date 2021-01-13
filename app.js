@@ -18,6 +18,8 @@ app.use('/login', require('./routes/login/login.route'));
 
 app.use('/employee', require('./routes/employee/employee.route'))
 
+app.use('/admin', require('./routes/admin/admin.route'))
+
 app.use('/customer', require('./routes/customer/customer.route'));
 
 app.listen(3001, function() {

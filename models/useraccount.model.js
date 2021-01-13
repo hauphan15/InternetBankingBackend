@@ -22,7 +22,13 @@ module.exports = {
     getByUserName: username => {
         return database.load(`select * from useraccount where UserLogin = '${username}' `);
     },
+    getByRole: role => {
+        return database.load(`select * from useraccount where Permission = '${role}' and IsDelete = 0`);
+    },
     changePassword: (ID, newPassword) => {
         return database.load(`update useraccount set Password = '${newPassword}' where ID = ${ID} `);
+    },
+    delete: ID => {
+        return database.load(`update useraccount set IsDelete = 1 where ID = ${ID} `);
     }
 };

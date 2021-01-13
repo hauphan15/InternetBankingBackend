@@ -241,7 +241,8 @@ router.post('/add-receiver', async(req, res) => {
         UserID: req.body.UserID,
         ReceiverID: receiverAccount[0].ID,
         AccountNumber: req.body.ReceiverNumber,
-        NickName: req.body.NickName
+        NickName: req.body.NickName,
+        IsDelete: 0
     }
 
     const addReceiver = await receiverlistModel.add(receiverObject);
@@ -263,6 +264,16 @@ router.post('/edit-receiver', async(req, res) => {
     return res.json({
         success: true,
         message: 'Change nickname successfully'
+    })
+})
+
+
+//delete receiver from list
+router.post('/delete-receiver', async(req, res) => {
+    await receiverlistModel.delete(req.body.ID);
+    return res.json({
+        success: true,
+        message: 'Delete receiver successfully'
     })
 })
 
