@@ -82,7 +82,8 @@ router.post('/transfer-money', async(req, res) => {
         Money: req.body.Money,
         Content: req.body.Content,
         Time: moment().format('YYYY-MM-DD hh:mm:ss'),
-        Seen: 1
+        Seen: 0,
+        IsShown: 1
     }
     await notificationModel.add(notificationInfo);
 
@@ -133,6 +134,11 @@ router.post('/notification', async(req, res) => {
 //lấy tất cả thông báo được show
 router.post('/shown-notification', async(req, res) => {
     const shownNotification = await notificationModel.getAllShownNotification(req.body.UserID);
+
+    for (let i = 0; i < shownNotification.length; i++) {
+        shownNotification[i].Time = moment(shownNotification[i].Time).format('DD-MM-YYYY hh:mm:ss');
+    }
+
     return res.send(shownNotification);
 })
 

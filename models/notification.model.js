@@ -8,10 +8,10 @@ module.exports = {
         return database.load(`select * from notification where UserID = ${userid} `);
     },
     updateSeenStatus: userid => {
-        return database.load(`UPDATE notification SET Seen = 0  WHERE UserID = ${userid} `);
+        return database.load(`UPDATE notification SET Seen = 1  WHERE UserID = ${userid} `);
     },
     getAllUnSeenNotification: userid => {
-        return database.load(`select * from notification where UserID = ${userid} and Seen = 1`);
+        return database.load(`select * from notification where UserID = ${userid} and Seen = 0`);
     },
     getAllShownNotification: userid => {
         return database.load(`select * from notification where UserID = ${userid} and IsShown = 1`);
