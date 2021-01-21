@@ -14,6 +14,9 @@ router.post('/employee-list', async(req, res) => {
     for (let i = 0; i < employeeList.length; i++) {
         const profile = await userProfileModel.getByID(employeeList[i].ID);
         employeeProfile[i] = profile[0];
+
+        employeeProfile[i].Birthday = moment(employeeProfile[i].Birthday).format('DD-MM-YYYY');
+
     }
 
     res.send(employeeProfile);
@@ -95,4 +98,5 @@ router.post('/current-month-history', async(req, res) => {
     }
     res.send(historyList);
 })
+
 module.exports = router;
