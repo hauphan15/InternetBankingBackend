@@ -159,6 +159,8 @@ router.post('/get-customer', async (req, res) => {
     }
 
     var result1 = await userprofileModel.getByID(entity.ID);
+    console.log(result1)
+
     if(result1.length <= 0) {
         return res.json({
             success: false,
@@ -286,5 +288,28 @@ router.post('/tranmoney-to-another-customer', async (req, res) => {
         message: "Transfer complete!"
     });
 });
+router.post('/recharge', async(req, res) => {
+    var entity = req.body;
+    if(typeof entity.ID == 'undefined') {
+        return res.json({
+            success: false,
+            message: "Need ID to get Customer"
+        });
+    }
+    var result1 = await checkingaccountModel.getByID(entity.ID);
 
+    if(result1.length <= 0) {
+        return res.json({
+            success: false,
+            message: "Cant find anyone"
+        });
+    }
+    var newBalance = parseInt(result1[0].Money)+parseInt(entity.Money) 
+    await checkingaccountModel.updateBalance(entity.ID, newBalance );   
+    return res.json({
+        success: true,
+        data: newBalance,
+        message: 'Success'
+    });
+})
 module.exports = router;
